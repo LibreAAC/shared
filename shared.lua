@@ -152,7 +152,9 @@ function run_install_scripts()
   for name,f in pairs(v) do
     if string.gmatch(name, "^inst_[%w_]+$") then
       if ONLY == nil or ONLY:lower() == string.sub(name, 5) then
-        f()
+        for i,p in pairs(f) do
+          print(i, p)
+        end
       end
     end
   end
