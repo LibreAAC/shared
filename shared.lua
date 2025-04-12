@@ -1,13 +1,13 @@
 function getfield (f) -- extracted from Lua docs
   local v = _G    -- start with the table of globals
-  for w in string.gfind(f, "[%w_]+") do
+  for w in string.gmatch(f, "[%w_]+") do
     v = v[w]
   end
   return v
 end
 function setfield (f, v) -- extracted from Lua docs
   local t = _G    -- start with the table of globals
-  for w, d in string.gfind(f, "([%w_]+)(.?)") do
+  for w, d in string.gmatch(f, "([%w_]+)(.?)") do
     if d == "." then      -- not last field?
       t[w] = t[w] or {}   -- create table if absent
       t = t[w]            -- get the table
@@ -27,9 +27,11 @@ function shell(res)
   print(res)
   if not os.execute(res) then
     print("Error occured. Exiting installation...")
-    for i,f in pairs(TEMP_FOLDERS) do
-      if exists(f) then
-        rm(f)
+    if TEMP_FOLDERS then
+      for i,f in pairs(TEMP_FOLDERS) do
+        if exists(f) then
+          rm(f)
+        end
       end
     end
     os.exit(1)
@@ -43,10 +45,10 @@ end
 function popen(fmt, ...)
   local res = string.format(fmt, ...)
   print(res)
-  return io.popen(res,"r")
+  return io.popen(res,"r"):read()
 end
 function rm(path)
-  assert(not startswith(path, "/"), "rm (the lua function) rejects absolute paths just to be safe")
+  assert(not path:startswith("/"), "rm (the lua function) rejects absolute paths just to be safe")
   print("×", path)
   if TARGET == "WIN" then
     os.execute("powershell.exe rm -Recurse -Force " .. path)
@@ -55,8 +57,8 @@ function rm(path)
   end
 end
 function mv(src, dst)
-  assert(not startswith(src, "/"), "mv (the lua function) rejects absolute paths just to be safe")
-  assert(not startswith(dst, "/"), "mv (the lua function) rejects absolute paths just to be safe")
+  assert(not src:startswith("/"), "mv (the lua function) rejects absolute paths just to be safe")
+  assert(not dst:startswith("/"), "mv (the lua function) rejects absolute paths just to be safe")
   if src == dst and isdir(dst) then
     rm(dst)
   end
@@ -78,6 +80,15 @@ function exists(file)
    end
    return ok, err
 end
+-- returns only the name of the file without the path part
+function filename(p)
+  if PATH_DELIM == nil then PATH_DELIM = "/" end
+  local o = p
+  for word in string.gmatch(p, PATH_DELIM.."[^"..PATH_DELIM.."]*") do
+    o = word
+  end
+  return string.sub(o,2)
+end
 
 --- Check if a directory exists in this path
 function isdir(path)
@@ -85,17 +96,31 @@ function isdir(path)
    return exists(path.."/")
 end
 
-function startswith(s, part)
-  return string.sub(s, 0, string.len(part)) == part
+function string:startswith(part)
+  return string.sub(self, 0, string.len(part)) == part
 end
-function endswith(s, part)
-  return string.sub(s, string.len(s) - string.len(part)) == part
+function string:endswith(part)
+  return string.sub(self, string.len(s) - string.len(part)) == part
+end
+function string:split(sep)
+  if sep == nil then
+    sep = "%s"
+  end
+  local t = {}
+  for str in string.gmatch(self, "([^"..sep.."]+)") do
+    table.insert(t, str)
+  end
+  return t
+end
+function string:join(T)
+  return table.concat(T, self)
 end
 
 function load_os()
   TARGET = "LINUX"
+  PATH_DELIM = "/"
   for _, a in pairs(arg) do
-    if startswith(a, "target=") then
+    if a:startswith("target=") then
       TARGET = string.upper(string.sub(a, string.find(a, "=")+1))
       assert(
          TARGET == "LINUX"
@@ -104,6 +129,8 @@ function load_os()
       or TARGET == "ANDROID",
         TARGET .. " is and unknown target. Expected LINUX, WIN, IOS or ANDROID."
       )
+      if TARGET == "WIN" then PATH_DELIM = "\\" end
+      CWD = popen("pwd")
       return TARGET
     end
   end
@@ -119,26 +146,20 @@ function load_os()
 	if fh then
 		osname = fh:read()
 		TARGET = "LINUX"
+    CWD = popen("pwd")
 		return osname
 	end
 
 	TARGET = "WIN"
+	PATH_DELIM = "\\"
+  CWD = popen("pwd")
 	return osname or "Windows"
 end
 function parse_args()
   ONLY = nil
   for _, a in pairs(arg) do
-    if startswith(a, "target=") then
-      TARGET = string.upper(string.sub(a, string.find(a, "=")+1))
-      assert(
-         TARGET == "LINUX"
-      or TARGET == "WIN"
-      or TARGET == "IOS"
-      or TARGET == "ANDROID",
-        TARGET .. " is and unknown target. Expected LINUX, WIN, IOS or ANDROID."
-      )
-    -- elseif startswith(a, "only=") then
-    --   ONLY = string.sub(a, string.len("only=")+1)
+    if a:startswith("target=") then
+      -- ignore. this is parsed by load_os
     else
       local f = string.find(a, "=")
       if f then
@@ -150,9 +171,13 @@ end
 function run_install_scripts()
   local v = _G    -- start with the table of globals
   for name,f in pairs(v) do
-    if string.gmatch(name, "^inst_[%w_]+$") then
-      if ONLY == nil or ONLY:lower() == string.sub(name, 5) then
-        f()
+    if string.find(name, "inst_") == 1 then
+      if name ~= nil and
+        (ONLY == nil or ONLY:lower() == string.sub(name, 6))
+      then
+        if type(f) == "function" then
+          f()
+        end
       end
     end
   end

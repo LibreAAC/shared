@@ -1,6 +1,8 @@
-#include "../include/utils.hpp"
+#include "utils.hpp"
 #include <filesystem>
+#ifdef FILE_DIALOG
 #include "nfd.h"
+#endif
 
 float XMAX, YMAX;
 
@@ -73,6 +75,7 @@ void BringKeyboard()
 #  define MAX_PATH 1024
 # endif
 
+#ifdef FILE_DIALOG
 char _PATH_BUFF[MAX_PATH] = { 0 };
 const char* open_file_dialogue()
 {
@@ -94,4 +97,5 @@ const char* open_file_dialogue()
     return 0;
   }
 }
+#endif
 #endif

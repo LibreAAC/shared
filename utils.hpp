@@ -84,8 +84,6 @@ struct ByteBuffer
     }
     memcpy(data+len-src.len, src.data, src.len);
   }
-  void dyn_end(u64& io_cap)
-  {  }
   void serialize(FILE* f)
   { fwrite(data, len, 1, f); }
   void deserialize(FILE* f)
@@ -93,7 +91,14 @@ struct ByteBuffer
   void destroy()
   { if (data) { free(data); data = nullptr; } }
 };
-
+struct DynByteBuffer {
+  ByteBuffer& buffer;
+  u64 cap;
+  static inline DynByteBuffer from(ByteBuffer& buf)
+  { return {buf, buf.len}; }
+  void push(const ByteBuffer src)
+  { buffer.dyn_push(cap, src); }
+};
 /*
 'Fixed' is used here as an opposite to dynamic. Allocated once when deserialized.
 Works with variable length utf8 encoding.
@@ -227,10 +232,13 @@ struct Stream
 };
 template <class T>
 Stream& operator << (Stream& s, T& data)
-{ fwrite(&data, sizeof(T), 1, s._f);  return s; }
+{ fwrite(&data, sizeof(T), 1, s._f); return s; }
+template <>
+inline Stream& operator << <ByteBuffer>(Stream& s, ByteBuffer& data)
+{ fwrite(data.data, data.len, 1, s._f); return s; }
 template <class T>
 Stream& operator >> (Stream& s, T& data)
-{ fread(&data, sizeof(T), 1, s._f);  return s; }
+{ fread(&data, sizeof(T), 1, s._f); return s; }
 
 using fvec2 = Vector2;
 

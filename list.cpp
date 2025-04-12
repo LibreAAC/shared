@@ -1,4 +1,4 @@
-#include "../include/list.hpp"
+#include "list.hpp"
 
 constexpr list<char>::list(const char* init_ls)
 	: _data(nullptr), _cap(0)
