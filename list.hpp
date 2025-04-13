@@ -67,8 +67,8 @@ public:
   inline View<T> to_view() const;
   Self& rmv_range(std::initializer_list<index_t> start_end);
   inline Self& clear();
-  inline Self& assign(const View<T>& other);
-  inline Self& assign(const list<T>& other);
+  inline Self& ref(const View<T>& other);
+  inline Self& ref(const list<T>& other);
   inline Self& operator=(const list<T>& other);
   inline Self& operator=(std::initializer_list<T> init_ls);
   T& operator[](const index_t index) const;
@@ -416,13 +416,13 @@ GEN inline Self& list<T>::force_realloc()
   return self;
 }
 
-GEN inline Self& list<T>::assign(const View<T>& other)
+GEN inline Self& list<T>::ref(const View<T>& other)
 {
   assert(other.is_full()
   ); // Or else accessing length will cause undefined behavior
   assertm(
       _cap == 0,
-      "[MEMCHECK] You tried to assign to a list, but you forgot to destroy it "
+      "[MEMCHECK] You tried to reference a list, but you forgot to destroy it "
       "! (1)"
   );
   _data = other.start;
@@ -430,11 +430,11 @@ GEN inline Self& list<T>::assign(const View<T>& other)
   return self;
 }
 
-GEN inline Self& list<T>::assign(const list<T>& other)
+GEN inline Self& list<T>::ref(const list<T>& other)
 {
   assertm(
       _cap == 0,
-      "[MEMCHECK] You tried to assign to a list, but you forgot to destroy it "
+      "[MEMCHECK] You tried to reference a list, but you forgot to destroy it "
       "! (2)"
   );
   _data = other._data;
@@ -570,12 +570,16 @@ public:
   isize _cap;
 
   constexpr list() : _data(nullptr), _cap(0) {}
-  constexpr list(const char*);
+  constexpr list(T* data, isize cap) : _data(data), _cap(cap) {}
   constexpr list(const list<T>& other)
     : _data(other._data), _cap(other._cap) {}
   constexpr list(const list<T>&& other)
     : _data(other._data), _cap(other._cap) {}
   inline Self& init() { _data = nullptr; _cap = 0; return *this; }
+  static constexpr inline Self ref(char* cstr)
+  { return {cstr, 0}; }
+  static constexpr inline Self own(char* cstr)
+  { return {cstr, str_len(cstr)+1}; }
   inline Self& push(T element);
   Self& prextend(View<T> ref_pre);
   Self& extend(View<T> ref_ext);
@@ -606,7 +610,7 @@ public:
   Self& rmv_range(std::initializer_list<index_t> start_end);
   inline Self& clear();
   inline Self& assign(const View<T>& other);
-  inline Self& assign(const list<T>& other)
+  inline Self& ref(const list<T>& other)
   {
     _data = other._data;
     _cap = 0;
@@ -766,6 +770,10 @@ using string = list<char>;
 inline bool operator == (string a, string b)
 {
   return str_eq(a.data(), b.data());
+}
+inline bool operator != (string a, string b)
+{
+  return !(a == b);
 }
 
 #undef Self

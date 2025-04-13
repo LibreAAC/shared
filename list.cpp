@@ -1,19 +1,5 @@
 #include "list.hpp"
 
-constexpr list<char>::list(const char* init_ls)
-	: _data(nullptr), _cap(0)
-{
-	const isize _len = str_len(init_ls);
-	if (_len > 0) {
-		_data = (char*)malloc(sizeof(char)*_len + 1);
-		memcpy(_data, init_ls, sizeof(char) * (_len + 1));
-		_cap = _len;
-	} else {
-		_data = nullptr;
-		_cap = 0;
-	}
-}
-
 list<char> list<char>::copy() const {
 	const isize _len = len();
 	list<char> ret;

@@ -5,13 +5,12 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
-#include <raylib.h>
 #include <cstdio>
 #ifndef H_UTILS
 #define H_UTILS
 
 #define todo() {dblog(LOG_FATAL, "TODO REACHED %s:%i", __FILE__, __LINE__); abort();}
-#define dblog(WARN, ...) TraceLog(WARN, __VA_ARGS__)
+#define dblog(WARN, ...) fprintf(stderr, __VA_ARGS__)
 #define assertm(cond, ...) if (!(cond)) { dblog(LOG_FATAL, __VA_ARGS__); assert((cond));}
 #define poff(ptr, byte_offset) ((decltype(ptr))(((uint8_t*)(ptr)) + (byte_offset)))
 
@@ -96,6 +95,23 @@ struct DynByteBuffer {
   u64 cap;
   static inline DynByteBuffer from(ByteBuffer& buf)
   { return {buf, buf.len}; }
+  template <class T>
+  T* data() { return (T*)buffer.data; }
+  u64 len() { return buffer.len; }
+  void set_len(u64 size) { buffer.len = size; }
+  void clear() { buffer.len = 0; }
+  void prealloc_at_least(int size)
+  {
+    if (cap < size)
+    {
+      if (buffer.data == nullptr)
+        buffer.data = (u8*)calloc(size,1);
+      else
+        buffer.data = (u8*)realloc(buffer.data, size);
+      cap = size;
+      buffer.owned = true;
+    }
+  }
   void push(const ByteBuffer src)
   { buffer.dyn_push(cap, src); }
 };
@@ -240,17 +256,17 @@ template <class T>
 Stream& operator >> (Stream& s, T& data)
 { fread(&data, sizeof(T), 1, s._f); return s; }
 
-using fvec2 = Vector2;
+// using fvec2 = Vector2;
 
-extern bool edit_mode;
-extern float XMAX, YMAX, dt;
-extern bool edit_mode;
+// extern bool edit_mode;
+// extern float XMAX, YMAX, dt;
+// extern bool edit_mode;
 
-namespace ctrl
-{
-  extern fvec2 mpos;
-  extern bool touch_press;
-  extern char read;
-}
+// namespace ctrl
+// {
+//   extern fvec2 mpos;
+//   extern bool touch_press;
+//   extern char read;
+// }
 
 #endif

@@ -4,7 +4,6 @@
 #include "nfd.h"
 #endif
 
-float XMAX, YMAX;
 
 long FileEditTime(const char* filename)
 {
@@ -17,11 +16,12 @@ long FileEditTime(const char* filename)
   //  the doc...
 }
 
-namespace ctrl
-{
-  fvec2 mpos;
-  bool touch_press;
-}
+// float XMAX, YMAX;
+// namespace ctrl
+// {
+//   fvec2 mpos;
+//   bool touch_press;
+// }
 
 [[gnu::const]] bool str_eq(const char* s1, const char* s2)
 {
