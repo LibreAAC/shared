@@ -24,9 +24,6 @@ list<char>& list<char>::extend(View<char> ref_ext)
 		} else {
 			while (_len > _cap)
 				_cap *= 2;
-			// C++ really can be ugly sometimes ngl
-			// btw i critize but my language has the same kind of shitty features
-			// but mine is better coz it's my baby yk
 			_data = (char*)(::realloc(
 				_data,
 				sizeof(char)*(_cap+1)
@@ -34,6 +31,32 @@ list<char>& list<char>::extend(View<char> ref_ext)
 		}
 	}
 	memcpy(_data + (_len - ref_ext.len), ref_ext.start, sizeof(char)*ref_ext.len);
+	_data[_len] = 0;
+	return *this;
+}
+
+list<char>& list<char>::prextend(View<char> ref_ext)
+{
+	isize _len = len();
+	_len+=ref_ext.len;
+	if (_len > _cap) {
+		if (_cap == 0 || _data == NULL) {
+			const void* const old = (void*)_data; // Pointing to content, not length
+			_data = (char*)malloc(sizeof(char)*(_len+1));
+			if (old != NULL)
+				memcpy((void*)_data, old, _len); // Copying old content (+Ld0), not length
+			_cap = _len;
+		} else {
+			while (_len > _cap)
+				_cap *= 2;
+			_data = (char*)(::realloc(
+				_data,
+				sizeof(char)*(_cap+1)
+			));
+		}
+	}
+	memmove(_data+ref_ext.len, _data, _len-ref_ext.len);
+	memcpy(_data, ref_ext.start, sizeof(char)*ref_ext.len);
 	_data[_len] = 0;
 	return *this;
 }

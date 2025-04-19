@@ -16,16 +16,9 @@ long FileEditTime(const char* filename)
   //  the doc...
 }
 
-// float XMAX, YMAX;
-// namespace ctrl
-// {
-//   fvec2 mpos;
-//   bool touch_press;
-// }
-
 [[gnu::const]] bool str_eq(const char* s1, const char* s2)
 {
-  if (s1 == nullptr || s1 == nullptr)
+  if (s1 == nullptr || s2 == nullptr)
     return s1 == s2;
   while (*s1 != 0 && *s2 != 0)
   {
@@ -45,7 +38,7 @@ long FileEditTime(const char* filename)
       return false;
     start++; s++;
   }
-  return *s == 0;
+  return *start == 0;
 }
 [[gnu::const]] bool str_endswith(const char* s, const char* end)
 {
