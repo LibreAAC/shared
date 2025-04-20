@@ -256,17 +256,4 @@ template <class T>
 Stream& operator >> (Stream& s, T& data)
 { fread(&data, sizeof(T), 1, s._f); return s; }
 
-// using fvec2 = Vector2;
-
-// extern bool edit_mode;
-// extern float XMAX, YMAX, dt;
-// extern bool edit_mode;
-
-// namespace ctrl
-// {
-//   extern fvec2 mpos;
-//   extern bool touch_press;
-//   extern char read;
-// }
-
 #endif

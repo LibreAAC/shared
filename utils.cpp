@@ -69,6 +69,7 @@ void BringKeyboard()
 # endif
 
 #ifdef FILE_DIALOG
+#include "raylib.h"
 char _PATH_BUFF[MAX_PATH] = { 0 };
 const char* open_file_dialogue()
 {
