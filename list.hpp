@@ -9,7 +9,9 @@
 #include <experimental/type_traits>
 #include <initializer_list>
 #include <utility>
+#ifdef FILE_DIALOG
 #include <raylib.h>
+#endif
 #include <cstdint>
 #include "utils.hpp"
 
