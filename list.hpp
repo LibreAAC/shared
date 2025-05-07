@@ -475,10 +475,6 @@ GEN T& list<T>::operator[](const index_t index) const
   {
     return _data[_len + index];
   }
-  if (0 > index || index >= _len)
-  {
-    abort();
-  }
 #ifdef DEBUG
   assertm(0 <= index && index < _len, "list out of bound access");
 #endif
