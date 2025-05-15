@@ -186,10 +186,30 @@ GEN inline Self& list<T>::init()
 GEN inline Self& list<T>::prealloc(isize size)
 {
   const isize _len = len();
-  assertm(_cap == 0 && _len == 0, "List is already set: cannot prealloc.");
-  _cap = size;
-  _data = (T*)poff(malloc(sizeof(T) * _cap + sizeof(isize)), sizeof(isize));
-  FETCH_LEN() = 0;
+  if (size <= _cap)
+    return self;
+  if (is_owned())
+  {
+    _cap = size;
+    _data = (T*)poff(::realloc(
+      poff(_data, -sizeof(isize)),
+      sizeof(T) * _cap + sizeof(isize)
+    ), sizeof(isize));
+  }
+  else
+  {
+    const void* old = _data;
+    _cap = size;
+    _data = (T*)poff(malloc(sizeof(T) * _cap + sizeof(isize)), sizeof(isize));
+    if (old)
+      memcpy(
+        poff(_data, -sizeof(isize)),
+        poff(old, -sizeof(isize)),
+        sizeof(T)*_len + sizeof(isize)
+      );
+    else
+      FETCH_LEN() = 0;
+  }
   return self;
 }
 
@@ -259,7 +279,8 @@ GEN Self& list<T>::extend(const View<T> ref_ext)
   {
     _data[i] = ref_ext[i - init_len];
   }
-  FETCH_LEN() = _len;
+  if (_len > 0)
+    FETCH_LEN() = _len;
   return self;
 }
 
