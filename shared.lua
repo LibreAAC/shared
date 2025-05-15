@@ -120,6 +120,7 @@ function load_os()
   TARGET = "LINUX"
   PATH_DELIM = "/"
   for _, a in pairs(arg) do
+    print(a)
     if a:startswith("target=") then
       TARGET = string.upper(string.sub(a, string.find(a, "=")+1))
       assert(
@@ -131,13 +132,14 @@ function load_os()
       )
       if TARGET == "WIN" then PATH_DELIM = "\\" end
       if TARGET == "WIN" then
-        CWD = popen("powershell.exe (pwd).path")
+        CWD = popen("powershell.exe '(pwd).path'")
       else
         CWD = popen("pwd")
       end
       return TARGET
     end
   end
+
 
 	-- ask LuaJIT first
 	if jit then
@@ -151,8 +153,9 @@ function load_os()
 		osname = fh:read()
 		TARGET = "LINUX"
     if TARGET == "WIN" then
-      CWD = popen("powershell.exe (pwd).path")
+      CWD = popen("powershell.exe '(pwd).path'")
     else
+      print("BB")
       CWD = popen("pwd")
     end
 		return osname
@@ -163,6 +166,7 @@ function load_os()
   if TARGET == "WIN" then
     CWD = popen("powershell.exe (pwd).path")
   else
+    print("AA")
     CWD = popen("pwd")
   end
 	return osname or "Windows"
