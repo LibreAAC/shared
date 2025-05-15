@@ -22,7 +22,7 @@ function todo()
 end
 function shell(res)
   if TARGET == "WIN" then
-    res = "powershell.exe " + res
+    res = "powershell.exe " .. res
   end
   print(res)
   if not os.execute(res) then
