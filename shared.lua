@@ -130,7 +130,11 @@ function load_os()
         TARGET .. " is and unknown target. Expected LINUX, WIN, IOS or ANDROID."
       )
       if TARGET == "WIN" then PATH_DELIM = "\\" end
-      CWD = popen("pwd")
+      if TARGET == "WIN" then
+        CWD = popen("powershell.exe (pwd).path")
+      else
+        CWD = popen("pwd")
+      end
       return TARGET
     end
   end
@@ -146,13 +150,21 @@ function load_os()
 	if fh then
 		osname = fh:read()
 		TARGET = "LINUX"
-    CWD = popen("pwd")
+    if TARGET == "WIN" then
+      CWD = popen("powershell.exe (pwd).path")
+    else
+      CWD = popen("pwd")
+    end
 		return osname
 	end
 
 	TARGET = "WIN"
 	PATH_DELIM = "\\"
-  CWD = popen("pwd")
+  if TARGET == "WIN" then
+    CWD = popen("powershell.exe (pwd).path")
+  else
+    CWD = popen("pwd")
+  end
 	return osname or "Windows"
 end
 function parse_args()
