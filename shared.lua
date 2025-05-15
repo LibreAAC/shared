@@ -22,7 +22,7 @@ function todo()
 end
 function shell(res)
   if TARGET == "WIN" then
-    res = "powershell.exe " + res
+    res = "powershell.exe " .. res
   end
   print(res)
   if not os.execute(res) then
@@ -87,7 +87,12 @@ function filename(p)
   for word in string.gmatch(p, PATH_DELIM.."[^"..PATH_DELIM.."]*") do
     o = word
   end
-  return string.sub(o,2)
+  print(o)
+  if o[1] == PATH_DELIM then
+    return string.sub(o,2)
+  else
+    return o
+  end
 end
 
 --- Check if a directory exists in this path
@@ -153,7 +158,7 @@ function load_os()
 	TARGET = "WIN"
 	PATH_DELIM = "\\"
   CWD = popen("pwd")
-	return osname or "Windows"
+	return osname or "WIN"
 end
 function parse_args()
   ONLY = nil
