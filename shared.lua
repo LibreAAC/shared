@@ -37,11 +37,6 @@ function shell(res)
     os.exit(1)
   end
 end
-function ensure_folder(path)
-  if not exists(path) then
-    shell("mkdir " .. path)
-  end
-end
 function popen(fmt, ...)
   local res = string.format(fmt, ...)
   print(res)
@@ -67,6 +62,23 @@ function mv(src, dst)
     os.execute("powershell.exe mv -Force " .. src .. " " .. dst)
   elseif TARGET == "LINUX" then
     os.execute("mv -f " .. src .. " " .. dst)
+  else
+    todo()
+  end
+end
+function mkdir(path)
+  print("Creating folder " .. path)
+  if TARGET == "WIN" then
+    os.execute("powershell.exe mkdir -Path ".. path .." -Force")
+  elseif TARGET == "LINUX" then
+    os.execute("powershell.exe mkdir -p ".. path)
+  else
+    todo()
+  end
+end
+function ensure_folder(path)
+  if not exists(path) then
+    mkdir(path)
   end
 end
 -- Check if a file or directory exists in this path
