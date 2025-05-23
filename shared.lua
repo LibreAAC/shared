@@ -22,7 +22,7 @@ function todo()
 end
 function shell(res)
   if TARGET == "WIN" then
-    res = "powershell.exe " + res
+    res = "powershell.exe " .. res
   end
   print(res)
   if not os.execute(res) then
@@ -99,7 +99,12 @@ function filename(p)
   for word in string.gmatch(p, PATH_DELIM.."[^"..PATH_DELIM.."]*") do
     o = word
   end
-  return string.sub(o,2)
+  print(o)
+  if o[1] == PATH_DELIM then
+    return string.sub(o,2)
+  else
+    return o
+  end
 end
 
 --- Check if a directory exists in this path
@@ -132,6 +137,7 @@ function load_os()
   TARGET = "LINUX"
   PATH_DELIM = "/"
   for _, a in pairs(arg) do
+    print(a)
     if a:startswith("target=") then
       TARGET = string.upper(string.sub(a, string.find(a, "=")+1))
       assert(
@@ -142,10 +148,15 @@ function load_os()
         TARGET .. " is and unknown target. Expected LINUX, WIN, IOS or ANDROID."
       )
       if TARGET == "WIN" then PATH_DELIM = "\\" end
-      CWD = popen("pwd")
+      if TARGET == "WIN" then
+        CWD = popen("powershell.exe '(pwd).path'")
+      else
+        CWD = popen("pwd")
+      end
       return TARGET
     end
   end
+
 
 	-- ask LuaJIT first
 	if jit then
@@ -158,14 +169,22 @@ function load_os()
 	if fh then
 		osname = fh:read()
 		TARGET = "LINUX"
-    CWD = popen("pwd")
+    if TARGET == "WIN" then
+      CWD = popen("powershell.exe '(pwd).path'")
+    else
+      CWD = popen("pwd")
+    end
 		return osname
 	end
 
 	TARGET = "WIN"
 	PATH_DELIM = "\\"
-  CWD = popen("pwd")
-	return osname or "Windows"
+  if TARGET == "WIN" then
+    CWD = popen("powershell.exe (pwd).path")
+  else
+    CWD = popen("pwd")
+  end
+	return osname or "WIN"
 end
 function parse_args()
   ONLY = nil
