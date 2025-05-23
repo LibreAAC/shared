@@ -71,7 +71,28 @@ function mkdir(path)
   if TARGET == "WIN" then
     os.execute("powershell.exe mkdir -Path ".. path .." -Force")
   elseif TARGET == "LINUX" then
-    os.execute("powershell.exe mkdir -p ".. path)
+    os.execute("mkdir -p ".. path)
+  else
+    todo()
+  end
+end
+function wget(src, dst)
+  print("GET " .. src, "TO " .. dst)
+  if TARGET == "WIN" then
+    os.execute("powershell.exe iwr -Uri " .. src .. " -OutFile " .. dst)
+  elseif TARGET == "LINUX" then
+    os.execute("wget " .. src .. " -O " .. dst)
+  else
+    todo()
+  end
+end
+-- expect .zip for windows, .tar for unix/linux based
+function extract(path)
+  print("Extracting " .. path .. "...")
+  if TARGET == "WIN" then
+    os.execute("powershell.exe Expand-Archive " .. path .. " -Destination .")
+  elseif TARGET == "LINUX" then
+    os.execute("tar -xvf " .. path)
   else
     todo()
   end
