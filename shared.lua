@@ -21,9 +21,6 @@ function todo()
   os.exit(1)
 end
 function shell(res)
-  if TARGET == "WIN" then
-    res = "powershell.exe " .. res
-  end
   print(res)
   if not os.execute(res) then
     print("Error occured. Exiting installation...")
