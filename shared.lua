@@ -87,7 +87,7 @@ end
 function extract(path)
   print("Extracting " .. path .. "...")
   if TARGET == "WIN" then
-    os.execute("powershell.exe Expand-Archive " .. path .. " -Destination .")
+    os.execute("powershell.exe Expand-Archive " .. path .. " -Force -Destination .")
   elseif TARGET == "LINUX" then
     os.execute("tar -xvf " .. path)
   else
