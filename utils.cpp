@@ -102,9 +102,12 @@ const char* open_file_dialogue()
 
 #ifdef FILE_DIALOG
 #include "raylib.h"
-#include <shobjidl.h>
+#include "ifiledialogfix.h"
 char _PATH_BUFF[MAX_PATH] = { 0 };
 #define COM_INITFLAGS COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE
+struct IFileOpenDialog;
+// const GUID CLSID_FileOpenDialog = {0xDC1C5A9C,0xE88A,0x4DDE,0xA5,0xA1,0x60,0xF8,0x2A,0x20,0xAE,0xF7};
+// const GUID IID_IFileDialog = {0x42F85136,0xDB7E,0x439C,0x85,0xF1,0xE4,0x07,0x5D,0x13,0x5F,0xC8};
 // ALL OF THIS FUNCTION IS COPIED AND MODIFIED FROM nativefiledialog
 // (this is because nfd could not compile properly on windows with cmake for
 // some reason)
