@@ -102,7 +102,9 @@ const char* open_file_dialogue()
 
 #ifdef FILE_DIALOG
 #include "raylib.h"
+#include <shobjidl.h>
 char _PATH_BUFF[MAX_PATH] = { 0 };
+#define COM_INITFLAGS COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE
 // ALL OF THIS FUNCTION IS COPIED AND MODIFIED FROM nativefiledialog
 // (this is because nfd could not compile properly on windows with cmake for
 // some reason)
@@ -117,7 +119,7 @@ const char* open_file_dialogue()
   if (coResult != RPC_E_CHANGED_MODE)
   {        
       TraceLog(LOG_ERROR, "[open_file_dialog()] Could not initialize COM.");
-      return nfdResult;
+      return nullptr;
   }
 
   // Create dialog
@@ -144,7 +146,7 @@ const char* open_file_dialogue()
         TraceLog(LOG_ERROR, "[open_file_dialog()] Could not get shell item from dialog.");
         goto end;
       }
-      wchar_t *filePath(NULL);
+      wchar_t *filePath = nullptr;
       result = shellItem->GetDisplayName(SIGDN_FILESYSPATH, &filePath);
       if ( !SUCCEEDED(result) )
       {
@@ -164,7 +166,7 @@ const char* open_file_dialogue()
 
       nfdResult = OK;
       shellItem->Release();
-      return _PATH_BUF;
+      return _PATH_BUFF;
   }
   else if (result == HRESULT_FROM_WIN32(ERROR_CANCELLED) )
   {
