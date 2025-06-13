@@ -202,16 +202,15 @@ Works with variable length utf8 encoding.
 */
 struct FixedString
 {
-  using Char = char;
   u64 _byte_len;
-  Char* _data;
+  char* _data;
   inline i64 len() const
   {
     return _byte_len;
   }
   inline i64 mem_size() const
   {
-    return sizeof(Char)*_byte_len;
+    return sizeof(char)*_byte_len;
   }
   inline void deserialize(FILE* f)
   {
@@ -222,7 +221,7 @@ struct FixedString
       _data = nullptr;
       return;
     }
-    _data = (Char*)malloc(sizeof(Char)*(_byte_len+1));
+    _data = (char*)malloc(sizeof(char)*(_byte_len+1));
     fread(_data, _byte_len, 1, f);
     _data[_byte_len] = 0;
   }
@@ -242,7 +241,7 @@ struct FixedString
     }
     buff[i] = 0;
   }
-  inline Char& operator [] (int i)
+  inline char& operator [] (int i)
   {
     return _data[i];
   }
