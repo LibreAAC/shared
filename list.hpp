@@ -19,7 +19,8 @@ template <class T> struct View
 {
   T* start;
   isize len;
-  isize full;
+  void init()
+  { start = nullptr; len = 0; }
   inline T& operator[](index_t index) const
   {
     if (index < 0)
@@ -31,10 +32,9 @@ template <class T> struct View
   View shorten(isize diff) const
   {
     if (len < diff)
-      return View<T>{.start=start, .len=0, .full=full};
-    return View<T>{.start=start, .len=len-diff, .full=full};
+      return View<T>{.start=start, .len=0};
+    return View<T>{.start=start, .len=len-diff};
   }
-  constexpr inline bool is_full() const { return len == full; }
 };
 
 template <class T> class list
@@ -398,7 +398,7 @@ GEN Self& list<T>::rmv_range(std::initializer_list<index_t> start_end)
 
 GEN inline View<T> list<T>::to_view() const
 {
-  return View<T>{.start = _data, .len = len(), .full = len()};
+  return View<T>{.start = _data, .len = len()};
 }
 
 // Object is not destroyed !!!
@@ -624,7 +624,7 @@ public:
   inline Self& rmv(index_t index);
   inline View<T> to_view() const
   {
-    return View<T>{.start = _data, .len = len(), .full = len()};
+    return View<T>{.start = _data, .len = len()};
   }
   Self& rmv_range(std::initializer_list<index_t> start_end);
   inline Self& clear();

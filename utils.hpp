@@ -314,8 +314,8 @@ struct Stream
       buf[0] = buf[1];
       buf[1] = buf[2];
       buf[2] = buf[3];
-      buf[3] = fgetc(_f);
-      if (buf[3] == EOF)
+      const int c = fgetc(_f);
+      if (c == EOF)
       {
         dblog(LOG_ERROR, "Failed to find the following anchor:");
         for (int i = 0; i < 4; i++)
@@ -323,6 +323,7 @@ struct Stream
         puts("");
         abort();
       }
+      buf[3] = c;
     }
   }
 };
